@@ -41,7 +41,7 @@ void go(char* args, int arglen){
 
 void DeleteKey(LPCSTR ComputerName, HKEY HiveRoot, REGSAM ArchType, LPCSTR FullKeyName){
 
-    if(FullKeyName == NULL || strlen(FullKeyName) == 0){
+    if(FullKeyName == NULL || MSVCRT$strlen(FullKeyName) == 0){
         BeaconPrintf(CALLBACK_ERROR, "breg: Cannot add root hive as key\n");
         return;
     }
@@ -54,7 +54,7 @@ void DeleteKey(LPCSTR ComputerName, HKEY HiveRoot, REGSAM ArchType, LPCSTR FullK
         deleteFromRoot = true;
     else{
         lastSlashOffset = (DWORD)(lastSlash - FullKeyName);
-        if(lastSlashOffset == strlen(FullKeyName) - 1){
+        if(lastSlashOffset == MSVCRT$strlen(FullKeyName) - 1){
             BeaconPrintf(CALLBACK_ERROR, "breg: The specified key cannot end in '\\'\n");
             return;
         }
@@ -65,11 +65,11 @@ void DeleteKey(LPCSTR ComputerName, HKEY HiveRoot, REGSAM ArchType, LPCSTR FullK
     char ChildKeyName[256];
     if(deleteFromRoot){
         ParentKeyName[0] = 0;
-        MSVCRT$strncpy_s(ChildKeyName, 256, FullKeyName, strlen(FullKeyName));
+        MSVCRT$strncpy_s(ChildKeyName, 256, FullKeyName, MSVCRT$strlen(FullKeyName));
     }
     else{
         MSVCRT$strncpy_s(ParentKeyName, 256, FullKeyName, lastSlashOffset);
-        MSVCRT$strncpy_s(ChildKeyName, 256, lastSlash + 1, strlen(FullKeyName) - lastSlashOffset - 1);
+        MSVCRT$strncpy_s(ChildKeyName, 256, lastSlash + 1, MSVCRT$strlen(FullKeyName) - lastSlashOffset - 1);
     }
 
     HKEY hParentKey = OpenKeyHandle(ComputerName, HiveRoot, ArchType, DELETE | KEY_ENUMERATE_SUB_KEYS | KEY_QUERY_VALUE, ParentKeyName);
@@ -78,7 +78,7 @@ void DeleteKey(LPCSTR ComputerName, HKEY HiveRoot, REGSAM ArchType, LPCSTR FullK
         return;
 
     const char* hiveRootString = HiveRootKeyToString(HiveRoot);
-    const char* rootSeparator = (strlen(FullKeyName) == 0) ? "" : "\\";
+    const char* rootSeparator = (MSVCRT$strlen(FullKeyName) == 0) ? "" : "\\";
     const char* archString = ArchTypeToString(ArchType);
     const char* computerString = ComputerName == NULL ? "" : ComputerName;
     const char* computerNameSeparator = ComputerName == NULL ? "" : "\\";
@@ -99,7 +99,7 @@ void DeleteKey(LPCSTR ComputerName, HKEY HiveRoot, REGSAM ArchType, LPCSTR FullK
 void DeleteValue(LPCSTR ComputerName, HKEY HiveRoot, REGSAM ArchType, LPCSTR KeyName, LPCSTR ValueName){
 
     const char* hiveRootString = HiveRootKeyToString(HiveRoot);
-    const char* rootSeparator = (strlen(KeyName) == 0) ? "" : "\\";
+    const char* rootSeparator = (MSVCRT$strlen(KeyName) == 0) ? "" : "\\";
     const char* archString = ArchTypeToString(ArchType);
     const char* computerString = ComputerName == NULL ? "" : ComputerName;
     const char* computerNameSeparator = ComputerName == NULL ? "" : "\\";
@@ -124,7 +124,7 @@ void DeleteValue(LPCSTR ComputerName, HKEY HiveRoot, REGSAM ArchType, LPCSTR Key
 void AddKey(LPCSTR ComputerName, HKEY HiveRoot, REGSAM ArchType, LPCSTR KeyName){
 
     const char* hiveRootString = HiveRootKeyToString(HiveRoot);
-    const char* rootSeparator = (strlen(KeyName) == 0) ? "" : "\\";
+    const char* rootSeparator = (MSVCRT$strlen(KeyName) == 0) ? "" : "\\";
     const char* archString = ArchTypeToString(ArchType);
     const char* computerString = ComputerName == NULL ? "" : ComputerName;
     const char* computerNameSeparator = ComputerName == NULL ? "" : "\\";
@@ -159,7 +159,7 @@ void AddKey(LPCSTR ComputerName, HKEY HiveRoot, REGSAM ArchType, LPCSTR KeyName)
 void AddValue(LPCSTR ComputerName, HKEY HiveRoot, REGSAM ArchType, LPCSTR KeyName, LPCSTR ValueName, DWORD dwRegType, DWORD dataLength, LPBYTE bdata){
 
     const char* hiveRootString = HiveRootKeyToString(HiveRoot);
-    const char* rootSeparator = (strlen(KeyName) == 0) ? "" : "\\";
+    const char* rootSeparator = (MSVCRT$strlen(KeyName) == 0) ? "" : "\\";
     const char* archString = ArchTypeToString(ArchType);
     const char* computerString = ComputerName == NULL ? "" : ComputerName;
     const char* computerNameSeparator = ComputerName == NULL ? "" : "\\";
@@ -257,7 +257,7 @@ void QueryValue(LPCSTR ComputerName, HKEY HiveRoot, REGSAM ArchType, LPCSTR KeyN
     LPBYTE bdata = NULL;
     lret = ADVAPI32$RegQueryValueExA(hKey, ValueName, NULL, &dwType, NULL, &dwDataLength);
 
-    const char* rootSeparator = (strlen(KeyName) == 0) ? "" : "\\";
+    const char* rootSeparator = (MSVCRT$strlen(KeyName) == 0) ? "" : "\\";
     const char* archString = ArchTypeToString(ArchType);
     const char* computerString = ComputerName == NULL ? "" : ComputerName;
     const char* computerNameSeparator = ComputerName == NULL ? "" : "\\";
@@ -284,17 +284,17 @@ void QueryValue(LPCSTR ComputerName, HKEY HiveRoot, REGSAM ArchType, LPCSTR KeyN
     }
 
     formatp fpOutputAlloc;
-    DWORD rowSize = 2 + strlen(ValueName) + 4 + MAX_DATATYPE_STRING_LENGTH + 4 + dwDataLength + 2;
+    DWORD rowSize = 2 + MSVCRT$strlen(ValueName) + 4 + MAX_DATATYPE_STRING_LENGTH + 4 + dwDataLength + 2;
     BeaconFormatAlloc(&fpOutputAlloc, 512 + (rowSize * 3));
 
     BeaconFormatPrintf(&fpOutputAlloc, "\n[%s%s%s%s%s] %s\n\n", computerString, computerNameSeparator, hiveRootString, rootSeparator, KeyName, archString);
 
-    const char* valString = strlen(ValueName) == 0 ? "(default)" : ValueName;
+    const char* valString = MSVCRT$strlen(ValueName) == 0 ? "(default)" : ValueName;
 
-    BeaconFormatPrintf(&fpOutputAlloc, "  %s    %*s%s    %*s%s\n", "Name", strlen(valString) - 4, "", "Type", MAX_DATATYPE_STRING_LENGTH - 4, "", "Data");
-    BeaconFormatPrintf(&fpOutputAlloc, "  %s    %*s%s    %*s%s\n", "----", strlen(valString) - 4, "", "----", MAX_DATATYPE_STRING_LENGTH - 4, "", "----");
+    BeaconFormatPrintf(&fpOutputAlloc, "  %s    %*s%s    %*s%s\n", "Name", MSVCRT$strlen(valString) - 4, "", "Type", MAX_DATATYPE_STRING_LENGTH - 4, "", "Data");
+    BeaconFormatPrintf(&fpOutputAlloc, "  %s    %*s%s    %*s%s\n", "----", MSVCRT$strlen(valString) - 4, "", "----", MAX_DATATYPE_STRING_LENGTH - 4, "", "----");
 
-    PrintRegistryValue(&fpOutputAlloc, valString, strlen(valString), dwType, dwDataLength, bdata, true);
+    PrintRegistryValue(&fpOutputAlloc, valString, MSVCRT$strlen(valString), dwType, dwDataLength, bdata, true);
     
     BeaconFormatPrintf(&fpOutputAlloc, "\nDONE\n");
 
@@ -344,7 +344,7 @@ void EnumerateKey(LPCSTR ComputerName, HKEY HiveRoot, REGSAM ArchType, LPCSTR Ke
         dwMaxDataLength = 32;   //to account for display binary data if it exists
 
     //2 spaces + len(hiveroot) + '\' + keyname + '\' + subkey + '\n;
-    DWORD dwFullSubkeyNameMaxSize = 2 + 4 + 1 + strlen(KeyName) + 1 + dwMaxSubkeyNameLength + 1;
+    DWORD dwFullSubkeyNameMaxSize = 2 + 4 + 1 + MSVCRT$strlen(KeyName) + 1 + dwMaxSubkeyNameLength + 1;
     if(dwFullSubkeyNameMaxSize < 24)
         dwFullSubkeyNameMaxSize = 24; //max length of error string (with some padding)
 
@@ -358,7 +358,7 @@ void EnumerateKey(LPCSTR ComputerName, HKEY HiveRoot, REGSAM ArchType, LPCSTR Ke
     formatp fpOutputAlloc;
     BeaconFormatAlloc(&fpOutputAlloc, outputLength);
 
-    const char* rootSeparator = (strlen(KeyName) == 0) ? "" : "\\";
+    const char* rootSeparator = (MSVCRT$strlen(KeyName) == 0) ? "" : "\\";
     const char* archString = ArchTypeToString(ArchType);
     const char* computerString = ComputerName;
     const char* computerNameSeparator = "\\";
@@ -432,7 +432,7 @@ void EnumerateKey(LPCSTR ComputerName, HKEY HiveRoot, REGSAM ArchType, LPCSTR Ke
                 BeaconFormatPrintf(&fpOutputAlloc, "  [error %d]\n", lret);
                 continue;
             }
-            if(strlen(valueName) == 0)
+            if(MSVCRT$strlen(valueName) == 0)
                 MSVCRT$strcpy_s(valueName, dwMaxValueNameLength + 1, "(default)");
             PrintRegistryValue(&fpOutputAlloc, valueName, dwMaxValueNameLength, dwRegType, dataLength, bdata, false);
             
@@ -463,17 +463,17 @@ void PrintRegistryValue(formatp* pFormatObj, const char* valueName, DWORD dwMaxV
             return;
         }
         bdata[dataLength-1] = 0;
-        BeaconFormatPrintf(pFormatObj, "  %s    %*s%s    %*s%s\n", valueName, dwMaxValueNameLength - strlen(valueName), "", dataTypeString, MAX_DATATYPE_STRING_LENGTH - strlen(dataTypeString), "", (LPSTR)bdata);
+        BeaconFormatPrintf(pFormatObj, "  %s    %*s%s    %*s%s\n", valueName, dwMaxValueNameLength - MSVCRT$strlen(valueName), "", dataTypeString, MAX_DATATYPE_STRING_LENGTH - MSVCRT$strlen(dataTypeString), "", (LPSTR)bdata);
 
     }
     else if (dwRegType == REG_NONE)
-        BeaconFormatPrintf(pFormatObj, "  %s    %*s%s\n", valueName, dwMaxValueNameLength - strlen(valueName), "", dataTypeString);
+        BeaconFormatPrintf(pFormatObj, "  %s    %*s%s\n", valueName, dwMaxValueNameLength - MSVCRT$strlen(valueName), "", dataTypeString);
     else if(dwRegType == REG_DWORD)
-        BeaconFormatPrintf(pFormatObj, "  %s    %*s%s    %*s0x%x\n", valueName, dwMaxValueNameLength - strlen(valueName), "", dataTypeString, MAX_DATATYPE_STRING_LENGTH - strlen(dataTypeString), "", *(PDWORD)bdata);
+        BeaconFormatPrintf(pFormatObj, "  %s    %*s%s    %*s0x%x\n", valueName, dwMaxValueNameLength - MSVCRT$strlen(valueName), "", dataTypeString, MAX_DATATYPE_STRING_LENGTH - MSVCRT$strlen(dataTypeString), "", *(PDWORD)bdata);
     else if(dwRegType == REG_QWORD)
-        BeaconFormatPrintf(pFormatObj, "  %s    %*s%s    %*s0x%llx\n", valueName, dwMaxValueNameLength - strlen(valueName), "", dataTypeString, MAX_DATATYPE_STRING_LENGTH - strlen(dataTypeString), "", *(PULONGLONG)bdata);
+        BeaconFormatPrintf(pFormatObj, "  %s    %*s%s    %*s0x%llx\n", valueName, dwMaxValueNameLength - MSVCRT$strlen(valueName), "", dataTypeString, MAX_DATATYPE_STRING_LENGTH - MSVCRT$strlen(dataTypeString), "", *(PULONGLONG)bdata);
     else if(dwRegType == REG_BINARY){
-        BeaconFormatPrintf(pFormatObj, "  %s    %*s%s    %*s", valueName, dwMaxValueNameLength - strlen(valueName), "", dataTypeString, MAX_DATATYPE_STRING_LENGTH - strlen(dataTypeString), "");
+        BeaconFormatPrintf(pFormatObj, "  %s    %*s%s    %*s", valueName, dwMaxValueNameLength - MSVCRT$strlen(valueName), "", dataTypeString, MAX_DATATYPE_STRING_LENGTH - MSVCRT$strlen(dataTypeString), "");
         DWORD maxindex = dataLength;
         if(!PrintFullBinaryData && maxindex > 10)
             maxindex = 10;
@@ -486,7 +486,7 @@ void PrintRegistryValue(formatp* pFormatObj, const char* valueName, DWORD dwMaxV
     }
     else if(dwRegType == REG_MULTI_SZ){
 
-        BeaconFormatPrintf(pFormatObj, "  %s    %*s%s    %*s", valueName, dwMaxValueNameLength - strlen(valueName), "", dataTypeString, MAX_DATATYPE_STRING_LENGTH - strlen(dataTypeString), "");
+        BeaconFormatPrintf(pFormatObj, "  %s    %*s%s    %*s", valueName, dwMaxValueNameLength - MSVCRT$strlen(valueName), "", dataTypeString, MAX_DATATYPE_STRING_LENGTH - MSVCRT$strlen(dataTypeString), "");
 
         bdata[dataLength-1] = 0;
         DWORD offset = 0;
@@ -494,7 +494,7 @@ void PrintRegistryValue(formatp* pFormatObj, const char* valueName, DWORD dwMaxV
             for(;;){
                 LPSTR curString = (LPSTR)(bdata + offset);
                 BeaconFormatPrintf(pFormatObj, "%s", curString);
-                offset += strlen(curString) + 1;
+                offset += MSVCRT$strlen(curString) + 1;
                 if(bdata[offset] == 0)
                     break;
                 BeaconFormatPrintf(pFormatObj, "#");
@@ -506,10 +506,10 @@ void PrintRegistryValue(formatp* pFormatObj, const char* valueName, DWORD dwMaxV
         bdata[dataLength-1] = 0;
         if(dataLength > 1)
             bdata[dataLength-2] = 0;
-        BeaconFormatPrintf(pFormatObj, "  %s    %*s%s    %*s%ls\n", valueName, dwMaxValueNameLength - strlen(valueName), "", dataTypeString, MAX_DATATYPE_STRING_LENGTH - strlen(dataTypeString), "", (LPWSTR)bdata);
+        BeaconFormatPrintf(pFormatObj, "  %s    %*s%s    %*s%ls\n", valueName, dwMaxValueNameLength - MSVCRT$strlen(valueName), "", dataTypeString, MAX_DATATYPE_STRING_LENGTH - MSVCRT$strlen(dataTypeString), "", (LPWSTR)bdata);
     }
     else{
-        BeaconFormatPrintf(pFormatObj, "  %s    %*s%s    %*s%s\n", valueName, dwMaxValueNameLength - strlen(valueName), "", dataTypeString, MAX_DATATYPE_STRING_LENGTH - strlen(dataTypeString), "", "<not supported>");
+        BeaconFormatPrintf(pFormatObj, "  %s    %*s%s    %*s%s\n", valueName, dwMaxValueNameLength - MSVCRT$strlen(valueName), "", dataTypeString, MAX_DATATYPE_STRING_LENGTH - MSVCRT$strlen(dataTypeString), "", "<not supported>");
     }
 }
 
@@ -571,7 +571,7 @@ bool ParseArguments(char * args, int arglen, PREGISTRY_OPERATION pRegistryOperat
 
     *pArchType = archType;
 
-    if(remoteComputerName == NULL || strlen(remoteComputerName) > 0)
+    if(remoteComputerName == NULL || MSVCRT$strlen(remoteComputerName) > 0)
         *lpcRemoteComputerName = remoteComputerName;
     else
         *lpcRemoteComputerName = NULL;
@@ -592,7 +592,20 @@ bool ParseArguments(char * args, int arglen, PREGISTRY_OPERATION pRegistryOperat
     }
     else if (dataType == REG_SZ || dataType == REG_EXPAND_SZ){
         *pbData = data;
-        *cbData = strlen(data) + 1;
+        *cbData = MSVCRT$strlen(data) + 1;
+    }
+    else if (dataType == REG_MULTI_SZ) {
+        int i;
+        BeaconPrintf(CALLBACK_ERROR, "elamado");
+        int originalLen = MSVCRT$strlen(data);
+        for (i = 0; i< originalLen; i++) {
+            if (data[i] == '#'){
+                BeaconPrintf(CALLBACK_ERROR, "elamado");
+                data[i] = 0x00;
+            }     
+        }
+        *pbData = data;
+        *cbData = originalLen + 1;
     }
     else if (dataType == REG_DWORD){
         int idata = MSVCRT$atoi(data);

@@ -14,6 +14,8 @@ DECLSPEC_IMPORT LONGLONG MSVCRT$_atoi64(const char*);
 DECLSPEC_IMPORT errno_t MSVCRT$strcpy_s(char*, rsize_t, const char*);
 DECLSPEC_IMPORT const char* MSVCRT$strrchr(const char*, int);
 DECLSPEC_IMPORT errno_t MSVCRT$strncpy_s(char*, size_t, const char*, size_t);
+WINBASEAPI size_t __cdecl MSVCRT$strlen(const char *_Str);
+
 //kernel32 functions
 DECLSPEC_IMPORT DWORD WINAPI KERNEL32$GetLastError();
 DECLSPEC_IMPORT HANDLE WINAPI KERNEL32$GetProcessHeap();
